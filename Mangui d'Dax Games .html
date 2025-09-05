@@ -1,85 +1,267 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mangui Store</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .scroll-x { display: flex; overflow-x: auto; gap: 1rem; padding: 1rem; }
-    .scroll-x::-webkit-scrollbar { display: none; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mangui Store - Jogos</title>
+<style>
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#1f7ae0;
+  --radius:12px;
+}
+*{box-sizing:border-box;font-family:Inter,Segoe UI,system-ui,Roboto,"Helvetica Neue",Arial;}
+body{margin:0;background:var(--bg);color:#111;line-height:1.2}
+header{
+  background:linear-gradient(180deg,#ffffff 0%, rgba(255,255,255,0.9)100%);
+  padding:12px 14px;
+  box-shadow:0 1px 0 rgba(0,0,0,0.04);
+  position:sticky;top:0;z-index:10;
+}
+.topbar{display:flex;gap:12px;align-items:center}
+.search{flex:1;background:#f1f5f9;border-radius:999px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.7);}
+.search input{border:0;background:transparent;outline:0;width:100%;font-size:15px}
+.search button{background:none;border:0;cursor:pointer}
+.avatar{width:36px;height:36px;border-radius:50%;overflow:hidden}
+.tabs{display:flex;gap:20px;padding:12px 4px 6px 4px;font-weight:600;color:var(--muted)}
+.tabs button{background:transparent;border:0;padding:6px 0;font-size:15px;cursor:pointer}
+.tabs button.active{color:#000;border-bottom:3px solid var(--accent);padding-bottom:3px}
+/* banner */
+.banner{margin:12px;border-radius:16px;overflow:hidden;position:relative;background:linear-gradient(90deg,#9ad6ff,#cfa7ff);min-height:150px;display:flex;align-items:flex-end;padding:14px;transition: all 1s ease-in-out;}
+.banner .badge{position:absolute;left:12px;top:12px;background:rgba(255,255,255,0.9);padding:6px 10px;border-radius:999px;font-weight:600;font-size:13px;}
+.banner .title{font-size:18px;font-weight:700;color:#04132a;background:rgba(255,255,255,0.75);padding:8px;border-radius:10px;display:inline-block;max-width:75%}
+.banner img{position:absolute;right:0;top:0;height:100%;object-fit:cover;opacity:0.18}
+/* section */
+.section{padding:10px 12px}
+.section h3{margin:6px 0 12px 0;font-size:16px}
+/* list */
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border-radius:12px;padding:10px;display:flex;gap:12px;align-items:center;box-shadow:0 1px 6px rgba(16,24,40,0.03);}
+.thumb{width:72px;height:72px;border-radius:10px;flex:0 0 72px;overflow:hidden;background:#eee}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.info{flex:1;min-width:0}
+.name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{color:var(--muted);font-size:13px;margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.genre{font-size:12px;color:#1f7ae0;font-weight:600}
+.rating{font-weight:700;color:#111}
+.install{background:transparent;border:1px solid #e6eefc;padding:8px 12px;border-radius:999px;font-weight:700;cursor:pointer;flex-shrink:0}
+.install a{color:var(--accent);text-decoration:none}
+/* responsive */
+@media(min-width:880px){.list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.card{align-items:flex-start}}
+@media(min-width:1200px){.list{grid-template-columns:repeat(3,1fr)}}
+/* small footer nav */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;background:rgba(255,255,255,0.95);padding:8px 12px;border-radius:999px;display:flex;gap:18px;align-items:center;box-shadow:0 6px 20px rgba(2,6,23,0.08)}
+.nav button{background:transparent;border:0;font-weight:700;color:var(--muted);cursor:pointer}
+.nav button.active{color:var(--accent)}
+/* categoria dropdown */
+.category-filter{display:none;gap:10px;margin-bottom:10px}
+.category-filter button{padding:4px 10px;border-radius:999px;border:1px solid var(--accent);background:#fff;cursor:pointer;font-size:13px}
+.category-filter button.active{background:var(--accent);color:#fff}
+</style>
 </head>
-<body class="bg-gray-100">
+<body>
+<header>
+<div class="topbar">
+  <div class="search" role="search">
+    <input id="searchInput" placeholder="Pesquisar jogos..." aria-label="search apps" />
+    <button id="searchBtn"></button>
+  </div>
+  <div class="avatar" title="Mangui">
+    <img src="https://img.freepik.com/premium-vector/game-store-logo-template-design_316488-1493.jpg" alt="avatar" style="width:100%;height:100%;object-fit:cover"/>
+  </div>
+</div>
+<nav class="tabs" aria-label="tabs">
+  <button class="active" data-tab="paraVoce">Para você</button>
+  <button data-tab="emAlta">Em alta</button>
+  <button data-tab="criancas">Crianças</button>
+  <button data-tab="categoria">Categoria</button>
+</nav>
+</header>
 
-  <header class="bg-blue-600 text-white p-4 text-center text-xl font-bold">
-    Mangui Store - Jogos & Apps
-  </header>
+<main>
+<section class="banner" id="banner">
+  <div class="badge">Destaques – Jogos Mais Bons</div>
+  <div class="title" id="bannerTitle">Bully Anniversary Edition "Mundo aberto"</div>
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQy0hXur9Ira78hL6vArbE6mDhqchFDxgx1QA&s" alt="" id="bannerImg"/>
+</section>
 
-  <main class="p-4">
-    <!-- Botão de Teste -->
-    <div class="mb-6">
-      <button onclick="baixar('https://google.com')" class="bg-green-600 text-white px-4 py-2 rounded">
-        Testar Linkvertise
-      </button>
-    </div>
+<section class="section category-filter" id="categoryFilter">
+  <button data-cat="Android">Android</button>
+  <button data-cat="GameCube">GameCube</button>
+  <button data-cat="Wii">Wii</button>
+  <button data-cat="PSP">PSP</button>
+  <button data-cat="all" class="active">Todos</button>
+</section>
 
-    <!-- Categorias -->
-    <div class="flex gap-4 mb-6">
-      <button onclick="renderList('games')" class="bg-blue-500 text-white px-3 py-1 rounded">Jogos</button>
-      <button onclick="renderList('apps')" class="bg-blue-500 text-white px-3 py-1 rounded">Apps</button>
-    </div>
+<section class="section">
+  <h3>Patrocinados · Sugestões para você</h3>
+  <div class="list" id="gamesList"></div>
+</section>
+</main>
 
-    <!-- Lista de Itens -->
-    <div id="list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-  </main>
+<div class="nav" role="navigation" aria-label="menu">
+  <button class="active" data-menu="jogos">Jogos</button>
+  <button data-menu="apps">Apps</button>
+</div>
 
-  <script>
-    // Lista de Jogos
-    const games = [
-      {nome: "Bully Anniversary Edition", plataforma: "Android", tamanho: "2.5 GB", avaliacao: "★ 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQy0hXur9Ira78hL6vArbE6mDhqchFDxgx1QA&s", link: "https://linkvertise.com/1275086/bully"},
-      {nome: "Resident Evil 4", plataforma: "GameCube", tamanho: "1.2 GB", avaliacao: "★ 4.8", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-r9jY6Blw8cL1oh4wc4yqdzxdzQ5gbo2CKg&s", link: "https://linkvertise.com/1275086/re4"},
-      {nome: "Minecraft Story Mode 1", plataforma: "Android", tamanho: "700 MB", avaliacao: "★ 4.5", img: "https://play-lh.googleusercontent.com/WWXZsDC7WxZmf0bFgYwA4cbI5gQuW-sqZ44L1HZdsDFoV-NzhNH0ixlUzN5L5Q3SmA=w240-h480-rw", link: "https://linkvertise.com/1275086/mcsm1"}
-    ];
+<script>
+// lista de jogos
+const games = [
+    {nome: "Bully Anniversary Edition", plataforma: "Android", tamanho: "2.5 GB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQy0hXur9Ira78hL6vArbE6mDhqchFDxgx1QA&s", link: "#"},
+    {nome: "Call Of Duty Strike Team", plataforma: "Android", tamanho: "1.9 GB", avaliacao: " 4.3", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtYfz4fGzxv9FZBw4DFmhGxVqHOMJefRHc5g&s", link: "#"},
+    {nome: "Resident Evil 4", plataforma: "GameCube", tamanho: "1.1 GB", avaliacao: " 4.7", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-r9jY6Blw8cL1oh4wc4yqdzxdzQ5gbo2CKg&s", link: "#"},
+    {nome: "Bully Scholarship Edition", plataforma: "Wii", tamanho: "2.8 GB", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTE1ZJlArGONsoB5q18Mc8OjLsqkUhEarbWMA&s0", link: "#"},
+    {nome: "Prince Of Persia The Two Thrones", plataforma: "GameCube", tamanho: "1.3 GB", avaliacao: " 4.4", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9Tr61Pbr5H1klyiH33fvlBiqiprjNhYH0mw&s", link: "#"},
+    {nome: "Naruto Clash Of Ninja 2", plataforma: "GameCube", tamanho: "1.0 GB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5GOfA9U4vY4rZhHCMGSYe9EJedN8RmvsQEw&s", link: "#"},
+    {nome: "Real Steel", plataforma: "Android", tamanho: "1.2 GB", avaliacao: " 4.2", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK13VgsH2po6QobtC3Semq-xn0e_lmqlGBSA&s", link: "#"},
+    {nome: "X-Men 2 Wolverine Revenge", plataforma: "GameCube", tamanho: "1.4 GB", avaliacao: " 4.3", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6YwrH4bdvCDwr4NNGfb_z3ziLPnptQIkUgg&s", link: "#"},
+    {nome: "Batman Arkham Origins", plataforma: "Android", tamanho: "1.9 GB", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfmaiOfTVm0i_FICdFE9N6KT6txU4eHZJU1A&s", link: "#"},
+    {nome: "The Amazing Spiderman 2", plataforma: "Android", tamanho: "2.1 GB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWfVYhkBat10D6cOXFjKe_W_UIypDlwp5YaA&s", link: "#"},
+    {nome: "Teeny Titans", plataforma: "Android", tamanho: "800 MB", avaliacao: " 4.4", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdTqOhSuoY14tp5O7RgxBjE4CPP7V9WTXtRw&s", link: "#"},
+    {nome: "Minecraft Story Mode 1", plataforma: "Android", tamanho: "4.4GB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7dlelZcQDNNCVFKFOypAbEPDzhoGPTwvr-w&s", link: "https://apkaward.com/minecraft-story-mode"},
+    {nome: "The Walking Dead Season One", plataforma: "Android", tamanho: "1.4 GB", avaliacao: " 4.8", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIS4NmoS4w0BGDvWA8QMGy0Cwt07Q2jVhIwQ&s", link: "content://ru.zdevs.zarchiver.external/storage/emulated/0/Mangui%20d'Dax%20Games/the%20walking%20dead%20s1.html"},
+    {nome: "Minecraft Story Mode 2", plataforma: "Android", tamanho: "3.2 GB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Ona6EHXnG-SgYE10nET9LTHmAKjBNwdfNg&s", link: "https://apkaward.com/minecraft-story-mode-season-two"},
+        {nome: "The Walking Dead Season Two", plataforma: "Android", tamanho: "1.4 GB", avaliacao: " 4.8", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzm0QZdrgN-_JAYoiRKv3fzpGxPwFFkwJdkw&s", link: "content://ru.zdevs.zarchiver.external/storage/emulated/0/Mangui%20d'Dax%20Games/the%20walking%20dead%20s2.html"},
+    {nome: "The Walking Dead Michonne", plataforma: "Android", tamanho: "1.3 GB", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQky7tyRPrHqyQ1aZJ95XRsMRQ3cszpQf1lDw&s", link: "#"},
+    {nome: "Batman Begins", plataforma: "GameCube", tamanho: "1.4 GB", avaliacao: " 4.2", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT328-jUSwReOnEAWnzsSYPw8SCfLtzFZ57nw&s", link: "#"},
+    {nome: "The Walking Dead Season Three", plataforma: "Android", tamanho: "1.6 GB", avaliacao: " 4.7", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0JAsKieNJFI2knjJfCKzjI6SeAnT_ICiLLg&s", link: "#"},
+    {nome: "Need For Speed Underground", plataforma: "GameCube", tamanho: "1.2 GB", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQThhLG65_sOfBTYmVEE0EERD0yDPVrL-fXBA&s", link: "#"},
+    {nome: "Need For Speed Most Wanted 2012", plataforma: "Android", tamanho: "2.1 GB", avaliacao: " 4.4", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeBtWP-mwgpPHITP3QNBN0l6MyFEdMlPwmPw&s", link: "#"},
+    {nome: "Need For Speed Most Wanted 2005", plataforma: "GameCube", tamanho: "1.3 GB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYjYDiQY1OGkgrVgFsDOk_Rl5872F9BamTNQ&s", link: "#"},
+    {nome: "Total Football", plataforma: "Android", tamanho: "1GB MB", avaliacao: " 4.3", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdhDf7zLC4ud8lNYAjyOgHVJzVfflX9OMdVQ&s", link: "#"},
+    {nome: "Adventure Time Card Wars", plataforma: "Android", tamanho: "800 MB", avaliacao: " 4.4", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMvh_s_hZX3aEo9zdRvNPnXBuhI7NcW4TgsA&s", link: "#"},
+    {nome: "Life Is Strange", plataforma: "Android", tamanho: "7.5 GB", avaliacao: " 4.7", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1O7Kpb2uskIxgMPTRPO8LxhaeqdfNQ2rk-w&s", link: "#"},
+    {nome: "Life Is Strange Before the Storm", plataforma: "Android", tamanho: "1.6 GB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNx-r54EnXzWCR2XKUobEPLeE03kdM1ydoeQ&s", link: "#"},
+    {nome: "Batman The Dark Knight Rises", plataforma: "Android", tamanho: "2.0 GB", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR911ly4rT_NdvWGBhAfUJR1rh8KpFX5dU4Aw&s", link: "#"},
+    {nome: "The Amazing Spiderman 1", plataforma: "Android", tamanho: "1.8 GB", avaliacao: " 4.3", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSMN8eRI7oDhtumkliOW_cTL2dQQy_bombFg&s", link: "#"},
+    {nome: "Mudrunner Mobile", plataforma: "Android", tamanho: "800 GB", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJznF5zpYQn_aIf5esyYmX_Ewg_RgSgC2SFg&s", link: "#"},
+    {nome: "God Of War Ghost Of Sparta", plataforma: "PSP", tamanho: "1.2 GB", avaliacao: " 4.8", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWclEEk05QbVtmTYNUhBPZfBXZtxTgPxm_RQ&s", link: "#"},
+    {nome: "Forgotten Memories", plataforma: "Android", tamanho: "1.1 GB", avaliacao: " 4.3", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFatT-4rVls9ab_lPE4OT1aKFwSFQzJS8-AQ&s", link: "#"},
+    {nome: "Forgotten Memories Remastered", plataforma: "Android", tamanho: "1.2 GB", avaliacao: " 4.4", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZsabcCL_3mU0vtCIJreTturfGymQFtrpa4A&s", link: ""},
+    {nome: "Assassin's Creed Bloodlines", plataforma: "PSP", tamanho: "600 MB", avaliacao: " 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYeVsGVvB2Mh43OW1tuDs1mJX6-ExYKdvTYg&s", link: "#"},
+    {nome: "The Wolf Among Us", plataforma: "Android", tamanho: "1.5 GB", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbxWqXfU24BsdYHF5rJdclgC2bpYTARG0eKg&s", link: "https://apkaward.com/the-wolf-among-us"},
+    {nome: "Batman The Enemy Within", plataforma: "Android", tamanho: " ", avaliacao: " 4.5", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZt19TxD3idSQgeVHfzKcot2IDPExZlqfQSQ&s", link: "https://apkaward.com/batman-the-enemy-within"}
+];
 
-    // Lista de Apps
-    const apps = [
-      {nome: "YouTube Premium Mod", plataforma: "Android", tamanho: "90 MB", avaliacao: "★ 4.7", img: "https://www.logo.wine/a/logo/YouTube/YouTube-Logo.wine.svg", link: "https://linkvertise.com/1275086/youtube"},
-      {nome: "Spotify Mod", plataforma: "Android", tamanho: "80 MB", avaliacao: "★ 4.8", img: "https://www.logo.wine/a/logo/Spotify/Spotify-Logo.wine.svg", link: "https://linkvertise.com/1275086/spotify"}
-    ];
+const apps = [
+  {nome:"Dolphin Emulador", link:"https://play.google.com/store/apps/details?id=org.dolphinemu.dolphinemu", img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1uzvuRLJONXjZQ-ufy8lmlKO2GZqr52A63g&s", plataforma:"Android"},
+  {nome:"PPSSPP", link:"https://play.google.com/store/apps/details?id=org.ppsspp.ppsspp", img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi96ytGD3C0AlXkZgtscretTb9iiFWGUBf1A&s", plataforma:"Android"},
+  {nome:"WhatsApp", link:"https://play.google.com/store/apps/details?id=com.whatsapp", img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7_Fd3X61J8NCIMLY9h2vBJfDOip562gQpdg&s", plataforma:"Android"}
+];
 
-    // Função para abrir Linkvertise
-    function baixar(link){
-      linkvertise(1275086, {whitelist: [], blacklist: ["youtube.com"], redirect: link});
-    }
+const bannerData = [
+  {title:"Explore Bully Anniversary editon", img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQy0hXur9Ira78hL6vArbE6mDhqchFDxgx1QA&s"},
+  {title:"Novo desafio em Resident Evil 4", img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-r9jY6Blw8cL1oh4wc4yqdzxdzQ5gbo2CKg&s"},
+  {title:"Explore Bully Scholarship Edition", img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTE1ZJlArGONsoB5q18Mc8OjLsqkUhEarbWMA&s0"}
+];
 
-    // Função para renderizar a lista
-    function renderList(type="games"){
-      const list = document.getElementById("list");
-      list.innerHTML = "";
+const list = document.getElementById('gamesList');
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const tabs = document.querySelectorAll(".tabs button");
+const navButtons = document.querySelectorAll(".nav button");
+const categoryFilter = document.getElementById("categoryFilter");
+const categoryButtons = categoryFilter.querySelectorAll("button");
+const bannerTitle = document.getElementById("bannerTitle");
+const bannerImg = document.getElementById("bannerImg");
 
-      const items = (type === "games") ? games : apps;
+let currentTab = "paraVoce";
+let currentMenu = "jogos";
+let currentCategory = "all";
+let bannerIndex = 0;
 
-      items.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "bg-white rounded shadow p-2";
+function safeImg(src){
+  const img = document.createElement('img');
+  img.src = src;
+  img.onerror = () => { img.src = 'https://via.placeholder.com/200?text=No+Image' };
+  return img;
+}
 
-        card.innerHTML = `
-          <img src="${item.img}" class="w-full h-32 object-cover rounded mb-2">
-          <h2 class="font-bold text-sm">${item.nome}</h2>
-          <p class="text-xs text-gray-500">${item.plataforma} • ${item.tamanho}</p>
-          <p class="text-xs text-yellow-500">${item.avaliacao}</p>
-          <button onclick="baixar('${item.link}')" class="mt-2 w-full bg-blue-600 text-white text-sm py-1 rounded">Instalar</button>
-        `;
-        list.appendChild(card);
-      });
-    }
+function escapeHtml(text){
+  if(!text && text !== 0) return '';
+  return String(text).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]; });
+}
 
-    // Inicializa com jogos
-    renderList("games");
-  </script>
+function renderList(filter=""){
+  list.innerHTML = "";
+  let data = currentMenu === "jogos" ? games : apps;
+  data = data.filter(item => {
+    if(currentTab === "emAlta") return item.avaliacao >= " 4.5";
+    if(currentTab === "criancas") return ["Teeny Titans","Minecraft Story Mode 1","Minecraft Story Mode 2","Adventure Time Card Wars"].includes(item.nome);
+    if(currentTab === "categoria" && currentCategory !== "all") return item.plataforma === currentCategory;
+    return true;
+  }).filter(g => g.nome.toLowerCase().includes(filter.toLowerCase()));
 
-  <!-- Script do Linkvertise -->
-  <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
+  data.forEach(g => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="thumb" aria-hidden="true"></div>
+      <div class="info">
+        <div class="name" title="${escapeHtml(g.nome)}">${escapeHtml(g.nome)}</div>
+        <div class="meta">
+          <div>${escapeHtml(g.plataforma)}</div>
+          ${g.tamanho ? `<div>· ${escapeHtml(g.tamanho)}</div>` : ''}
+          ${g.genero ? `<div class="genre">· ${escapeHtml(g.genero)}</div>` : ''}
+          ${g.avaliacao ? `<div class="rating">${escapeHtml(g.avaliacao)}</div>` : ''}
+        </div>
+      </div>
+      <div class="install"><a href="${g.link}" target="_blank" rel="noopener">Instalar</a></div>
+    `;
+    const thumb = card.querySelector('.thumb');
+    const img = safeImg(g.img || 'https://via.placeholder.com/200');
+    thumb.appendChild(img);
+    list.appendChild(card);
+  });
+}
+
+function updateBanner(){
+  const item = bannerData[bannerIndex];
+  bannerTitle.textContent = item.title;
+  bannerImg.src = item.img;
+  bannerIndex = (bannerIndex +1) % bannerData.length;
+}
+
+setInterval(updateBanner, 5000); // 5 segundos
+
+searchBtn.addEventListener("click", () => renderList(searchInput.value));
+searchInput.addEventListener("keypress", e => { if(e.key === "Enter"){ renderList(searchInput.value); }});
+
+tabs.forEach(t => {
+  t.addEventListener("click", () => {
+    tabs.forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    currentTab = t.dataset.tab;
+    categoryFilter.style.display = currentTab === "categoria" ? "flex" : "none";
+    renderList(searchInput.value);
+  });
+});
+
+categoryButtons.forEach(b => {
+  b.addEventListener("click", () => {
+    categoryButtons.forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    currentCategory = b.dataset.cat;
+    renderList(searchInput.value);
+  });
+});
+
+navButtons.forEach(
+b => {
+  b.addEventListener("click", () => {
+    navButtons.forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    currentMenu = b.dataset.menu;
+    renderList(searchInput.value);
+  });
+});
+
+// inicializa
+renderList();
+updateBanner();
+</script>
 </body>
-</html>
+    </html>
+  
