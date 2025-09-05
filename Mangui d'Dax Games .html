@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mangui Store</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .scroll-x { display: flex; overflow-x: auto; gap: 1rem; padding: 1rem; }
+    .scroll-x::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+  <header class="bg-blue-600 text-white p-4 text-center text-xl font-bold">
+    Mangui Store - Jogos & Apps
+  </header>
+
+  <main class="p-4">
+    <!-- Botão de Teste -->
+    <div class="mb-6">
+      <button onclick="baixar('https://google.com')" class="bg-green-600 text-white px-4 py-2 rounded">
+        Testar Linkvertise
+      </button>
+    </div>
+
+    <!-- Categorias -->
+    <div class="flex gap-4 mb-6">
+      <button onclick="renderList('games')" class="bg-blue-500 text-white px-3 py-1 rounded">Jogos</button>
+      <button onclick="renderList('apps')" class="bg-blue-500 text-white px-3 py-1 rounded">Apps</button>
+    </div>
+
+    <!-- Lista de Itens -->
+    <div id="list" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+  </main>
+
+  <script>
+    // Lista de Jogos
+    const games = [
+      {nome: "Bully Anniversary Edition", plataforma: "Android", tamanho: "2.5 GB", avaliacao: "★ 4.6", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQy0hXur9Ira78hL6vArbE6mDhqchFDxgx1QA&s", link: "https://linkvertise.com/1275086/bully"},
+      {nome: "Resident Evil 4", plataforma: "GameCube", tamanho: "1.2 GB", avaliacao: "★ 4.8", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-r9jY6Blw8cL1oh4wc4yqdzxdzQ5gbo2CKg&s", link: "https://linkvertise.com/1275086/re4"},
+      {nome: "Minecraft Story Mode 1", plataforma: "Android", tamanho: "700 MB", avaliacao: "★ 4.5", img: "https://play-lh.googleusercontent.com/WWXZsDC7WxZmf0bFgYwA4cbI5gQuW-sqZ44L1HZdsDFoV-NzhNH0ixlUzN5L5Q3SmA=w240-h480-rw", link: "https://linkvertise.com/1275086/mcsm1"}
+    ];
+
+    // Lista de Apps
+    const apps = [
+      {nome: "YouTube Premium Mod", plataforma: "Android", tamanho: "90 MB", avaliacao: "★ 4.7", img: "https://www.logo.wine/a/logo/YouTube/YouTube-Logo.wine.svg", link: "https://linkvertise.com/1275086/youtube"},
+      {nome: "Spotify Mod", plataforma: "Android", tamanho: "80 MB", avaliacao: "★ 4.8", img: "https://www.logo.wine/a/logo/Spotify/Spotify-Logo.wine.svg", link: "https://linkvertise.com/1275086/spotify"}
+    ];
+
+    // Função para abrir Linkvertise
+    function baixar(link){
+      linkvertise(1275086, {whitelist: [], blacklist: ["youtube.com"], redirect: link});
+    }
+
+    // Função para renderizar a lista
+    function renderList(type="games"){
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+
+      const items = (type === "games") ? games : apps;
+
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded shadow p-2";
+
+        card.innerHTML = `
+          <img src="${item.img}" class="w-full h-32 object-cover rounded mb-2">
+          <h2 class="font-bold text-sm">${item.nome}</h2>
+          <p class="text-xs text-gray-500">${item.plataforma} • ${item.tamanho}</p>
+          <p class="text-xs text-yellow-500">${item.avaliacao}</p>
+          <button onclick="baixar('${item.link}')" class="mt-2 w-full bg-blue-600 text-white text-sm py-1 rounded">Instalar</button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // Inicializa com jogos
+    renderList("games");
+  </script>
+
+  <!-- Script do Linkvertise -->
+  <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
+</body>
+</html>
